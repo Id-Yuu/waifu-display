@@ -1,5 +1,7 @@
 # ✦ Waifu Display
 
+![](screenshot.png)
+
 Display your favorite game characters on any webpage. A lightweight Chrome extension with a modern dark UI, zero CSS conflicts, and support for multiple character sources.
 
 <p>
