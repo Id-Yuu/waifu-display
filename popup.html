@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waifu Display</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface-hover: #1a1a1a;
+      --border: #262626;
+      --accent: #fbbf24;
+      --accent-hover: #f59e0b;
+      --text: #f5f5f5;
+      --text-muted: #737373;
+      --radius: 8px;
+      --radius-sm: 4px;
+      --sidebar-width: 240px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 680px;
+      height: 580px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100%;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .sidebar::-webkit-scrollbar-track {
+      background: var(--surface);
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-header .icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #0a0a0a;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header .title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .sidebar-header .subtitle {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: -2px;
+    }
+
+    .provider-badge {
+      display: inline-block;
+      background: rgba(251, 191, 36, 0.1);
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 10px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: 0.03em;
+      text-align: center;
+    }
+
+    /* Character List in Sidebar */
+    .character-list-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .character-list-label .count {
+      font-size: 9px;
+      background: var(--border);
+      padding: 1px 6px;
+      border-radius: 10px;
+      color: var(--text-muted);
+    }
+
+    .character-list {
+      flex: 1;
+      overflow-y: auto;
+      margin: 0 -4px;
+      padding: 0 4px;
+    }
+
+    .character-list::-webkit-scrollbar {
+      width: 3px;
+    }
+    
+    .character-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .character-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .character-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .character-item:hover {
+      background: var(--surface-hover);
+    }
+
+    .character-item.active {
+      background: rgba(251, 191, 36, 0.08);
+      border-left: 2px solid var(--accent);
+    }
+
+    .character-item .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      background: var(--bg);
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+
+    .character-item .info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .character-item .name {
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .character-item .internal-name {
+      font-size: 9px;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    .character-item .check {
+      color: var(--accent);
+      font-size: 12px;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .character-item.active .check {
+      opacity: 1;
+    }
+
+    .character-list-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+      gap: 8px;
+    }
+
+    .character-list-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      height: 100%;
+    }
+
+    .main-content::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .main-content::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+    
+    .main-content::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 8px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.08);
+    }
+
+    .search-input::placeholder { color: #404040; }
+
+    /* Instructions */
+    .instructions {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .instructions code {
+      background: rgba(251, 191, 36, 0.08);
+      color: var(--accent);
+      padding: 1px 4px;
+      border-radius: var(--radius-sm);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+    }
+
+    .instructions strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Form */
+    .form-group { margin-bottom: 12px; }
+
+    .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 8px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.08);
+    }
+
+    .form-input::placeholder { color: #404040; }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23737373' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Range slider */
+    .range-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 1px var(--border);
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+    }
+
+    .range-value {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      min-width: 32px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      margin-bottom: 4px;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      background: var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-switch.active {
+      background: var(--accent);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(16px);
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      padding: 8px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.15); }
+
+    .btn:active { transform: scale(0.96); }
+
+    /* Status */
+    .status {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status.show { display: flex; }
+
+    .status-success {
+      background: rgba(34, 197, 94, 0.08);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.15);
+    }
+
+    .status-error {
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+
+    .status-info {
+      background: rgba(59, 130, 246, 0.08);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.15);
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--accent);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="icon">✦</div>
+      <div>
+        <div class="title">Waifu Display</div>
+        <div class="subtitle">Character overlay</div>
+      </div>
+    </div>
+
+    <div class="provider-badge" id="providerBadge">SinoAlice</div>
+
+    <div class="character-list-label">
+      <span>Characters</span>
+      <span class="count" id="charCount">0</span>
+    </div>
+
+    <div class="character-list" id="characterList">
+      <div class="character-list-empty">Select a source with characters</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="search-box">
+      <input type="text" class="search-input" id="searchInput" placeholder="Filter characters..." autocomplete="off">
+    </div>
+
+    <div class="instructions" id="instructions">
+      <strong>How to use:</strong> Copy the character path from the wiki URL.<br>
+      Example: <code>sinoalice.game-db.tw/characters/<strong>アリス/sorcerer</strong></code>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Source</label>
+      <select class="form-select" id="provider">
+        <option value="sinoalice">SinoAlice Wiki</option>
+        <option value="wutheringwaves">Wuthering Waves</option>
+        <option value="arknights">Arknights</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Character Path</label>
+      <input type="text" class="form-input" id="characterPath" placeholder="アリス/sorcerer" autocomplete="off">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Position</label>
+        <select class="form-select" id="position">
+          <option value="bottom-right">Bottom Right</option>
+          <option value="bottom-left">Bottom Left</option>
+          <option value="top-right">Top Right</option>
+          <option value="top-left">Top Left</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Animation</label>
+        <select class="form-select" id="animation">
+          <option value="none">None</option>
+          <option value="bounce">Bounce</option>
+          <option value="sway">Sway</option>
+          <option value="idle" selected>Idle</option>
+          <option value="float">Float</option>
+          <option value="pulse">Pulse</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Size (px)</label>
+        <div class="range-wrap">
+          <input type="range" id="size" min="50" max="500" value="250" step="10">
+          <span class="range-value" id="sizeValue">250</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Opacity</label>
+        <div class="range-wrap">
+          <input type="range" id="opacity" min="0.1" max="1" value="0.9" step="0.05">
+          <span class="range-value" id="opacityValue">0.9</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <span class="toggle-label">Always on top</span>
+      <div class="toggle-switch active" id="alwaysOnTopSwitch"></div>
+      <input type="checkbox" id="alwaysOnTop" checked style="display:none;">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="applyBtn">Apply</button>
+      <button class="btn btn-danger" id="resetBtn">Reset</button>
+    </div>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
