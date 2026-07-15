@@ -1,6 +1,6 @@
 ## 🚀 Contributing / Add a Waifu
 
-Adding a new waifu to your extention browser
+Adding a new waifu to your extension browser
 
 ### Step 1: Create a provider file
 
