@@ -81,7 +81,8 @@ class WaifuManager {
         switch (request.action) {
           case 'changeCharacter':
             if (request.settings) {
-              this.settings = { ...this.getDefaults(), ...request.settings };
+              // this.settings = { ...this.getDefaults(), ...request.settings };
+              this.settings = { ...this.getDefaultSettings(), ...request.settings };
             } else {
               this.settings.characterPath = request.characterPath;
             }
@@ -247,7 +248,9 @@ class WaifuManager {
       const imageUrl = res.data.imageUrl;
       
       // For Wuthering Waves, use the image URL directly without converting to data URL
-      const useDirectUrl = this.settings.provider === 'wutheringwaves' || this.settings.provider === 'arknights';
+      const useDirectUrl = this.settings.provider === 'wutheringwaves' || 
+                     this.settings.provider === 'arknights' ||
+                     this.settings.provider === 'bluearchive';
       
       let finalImageUrl;
       
@@ -266,6 +269,9 @@ class WaifuManager {
       }
 
       this.createShadowHost();
+      if (!this.img) {
+        throw new Error('Failed to create image element');
+      }
       this.img.src = finalImageUrl;
       
       // Add a load handler for direct URLs
@@ -277,7 +283,7 @@ class WaifuManager {
             action: 'fetchImageAsDataUrl',
             imageUrl: imageUrl
           }, (imgRes) => {
-            if (imgRes && imgRes.success) {
+            if (imgRes && imgRes.success && this.img) {
               this.img.src = imgRes.dataUrl;
             }
           });

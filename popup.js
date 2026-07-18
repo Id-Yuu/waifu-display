@@ -24,6 +24,12 @@ const PROVIDER_CONFIG = {
     instructions: '<strong>How to use:</strong> Select an operator from the sidebar, or type a name / paste a full GitHub image URL.<br>List is fetched live from the repo.',
     placeholder: 'Enter operator name or select from list',
     hasCharacterList: true
+  },
+  bluearchive: {
+    name: 'Blue Archive Wiki',
+    instructions: '<strong>How to use:</strong> Enter a wiki URL.<br>From lists : <kbd style="user-select:all;display:block;color:orange;">https://bluearchive.wikiru.jp/?%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E4%B8%80%E8%A6%A7</kbd> <br><hr><br>Example : <kbd style="user-select:all;display:block;color:orange;">https://bluearchive.wikiru.jp/?%E3%82%AB%E3%83%AA%E3%83%B3</kbd>',
+    placeholder: 'Enter character name or paste wiki URL',
+    hasCharacterList: false
   }
 };
 
@@ -54,9 +60,12 @@ class PopupController {
     this.renderUI();
     this.updateProviderUI(this.settings.provider);
 
-    // Load characters for the current provider
+    // Load characters ONLY for providers with character lists
     if (PROVIDER_CONFIG[this.settings.provider]?.hasCharacterList) {
       await this.loadCharacterList();
+    } else {
+      // Explicitly clear sidebar for providers without character lists
+      this.disableSidebar();
     }
   }
 
@@ -96,7 +105,8 @@ class PopupController {
       if (PROVIDER_CONFIG[e.target.value]?.hasCharacterList) {
         await this.loadCharacterList();
       } else {
-        this.clearCharacterList();
+        // Disable sidebar for providers without character lists
+        this.disableSidebar();
       }
     });
 
@@ -195,7 +205,7 @@ class PopupController {
       avatar.alt = char.displayName;
       avatar.loading = 'lazy';
       avatar.onerror = () => {
-        avatar.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23737373" stroke-width="1"%3E%3Crect x="3" y="3" width="18" height="18" rx="2"/%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"/%3E%3Cpath d="M21 15l-5-5-5 5-5-5-3 3"/%3E%3C/svg%3E';
+        avatar.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23737373" stroke-width="1"%3E%3Crect x="3" y="3" width="18" height="18" rx="2"/%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"/%3E%3Cpath d="M21 15l-5-5L5 21"/%3E%3C/svg%3E';
       };
       item.appendChild(avatar);
 
@@ -264,17 +274,37 @@ class PopupController {
     this.apply();
   }
 
-  clearCharacterList() {
+  // Completely disable sidebar for providers without character lists
+  disableSidebar() {
+    const sidebarSection = document.querySelector('.sidebar-section');
+    const searchBox = document.querySelector('.search-box');
     const list = $('#characterList');
-    list.innerHTML = `
-      <div class="character-list-empty">
-        Select a source with characters
-      </div>
-    `;
-    $('#charCount').textContent = '0';
+
+    // Hide sidebar section
+    if (sidebarSection) {
+      sidebarSection.style.display = 'none';
+    }
+
+    // Hide search box
+    if (searchBox) {
+      searchBox.style.display = 'none';
+    }
+
+    // Clear character list
+    if (list) {
+      list.innerHTML = '';
+    }
+
+    // Reset internal state
     this.allCharacters = [];
     this.filteredCharacters = [];
     this.selectedCharacter = null;
+    $('#charCount').textContent = '0';
+  }
+
+  // Old method kept for backward compatibility
+  clearCharacterList() {
+    this.disableSidebar();
   }
 
   updateProviderUI(providerId) {
@@ -285,12 +315,18 @@ class PopupController {
     $('#characterPath').placeholder = config.placeholder;
     $('#providerBadge').textContent = config.name;
 
-    // Show/hide search based on provider
+    // Show/hide search and sidebar based on provider
+    const sidebarSection = document.querySelector('.sidebar');
     const searchBox = document.querySelector('.search-box');
+    
     if (config.hasCharacterList) {
-      searchBox.style.display = 'flex';
+      // Show sidebar and search for providers with character lists
+      if (sidebarSection) sidebarSection.style.display = 'flex';
+      if (searchBox) searchBox.style.display = 'flex';
     } else {
-      searchBox.style.display = 'none';
+      // Hide sidebar and search for providers without character lists (sinoalice, bluearchive)
+      if (sidebarSection) sidebarSection.style.display = 'none';
+      if (searchBox) searchBox.style.display = 'none';
     }
   }
 
@@ -343,6 +379,9 @@ class PopupController {
     // Reload character list if needed
     if (PROVIDER_CONFIG[this.settings.provider]?.hasCharacterList) {
       await this.loadCharacterList();
+    } else {
+      // Disable sidebar for default provider if it doesn't have character list
+      this.disableSidebar();
     }
 
     this.sendToContent({ action: 'changeCharacter', characterPath: '', settings: this.settings });

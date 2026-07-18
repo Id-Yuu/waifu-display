@@ -7,13 +7,15 @@ import { verifyImage, fetchImageAsDataUrl } from './utils.js';
 import { sinoalice } from './providers/sinoalice.js';
 import { wutheringwaves } from './providers/wutheringwaves.js';
 import { arknights } from './providers/arknights.js';
+import { bluearchive } from './providers/bluearchive.js';
 
 // ===== PROVIDER REGISTRY =====
 // To add a new source, import it above and register it here.
 const PROVIDERS = {
   sinoalice,
   wutheringwaves,
-  arknights
+  arknights,
+  bluearchive
 };
 
 // ===== MESSAGE ROUTER =====
