@@ -33,8 +33,8 @@ Display your favorite game characters on any webpage. A lightweight Chrome exten
 | **SinoAlice** | Wiki scraper | ❌ | Copy path from `sinoalice.game-db.tw/characters/...` |
 | **Wuthering Waves** | Static list | ✅ | Pre-loaded roster from kurogames.com |
 | **Arknights** | GitHub repo | ✅ | Fetched live from [PuppiizSunniiz/Arknight-Images](https://github.com/PuppiizSunniiz/Arknight-Images) |
+| **Blue Archive** | Wiki scraper | ❌ | Copy url character from [BlueArchiveWIKIRU](https://bluearchive.wikiru.jp/?%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E4%B8%80%E8%A6%A7) | 
 | **Girls' Frontline** | ⚠️ | ❌ | Upcoming |
-| **Blue Archive** | ⚠️ | ❌ | Upcoming | 
 
 ---
 
