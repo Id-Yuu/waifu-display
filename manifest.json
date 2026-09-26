@@ -9,7 +9,8 @@
     "https://wutheringwaves.kurogames.com/*",
     "https://raw.githubusercontent.com/*",
     "https://api.github.com/*",
-    "https://bluearchive.wikiru.jp/*"
+    "https://bluearchive.wikiru.jp/*",
+    "https://gf2.mcc.wiki/*"
   ],
   "action": {
     "default_popup": "popup.html",

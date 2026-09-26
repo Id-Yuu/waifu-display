@@ -8,6 +8,7 @@ import { sinoalice } from './providers/sinoalice.js';
 import { wutheringwaves } from './providers/wutheringwaves.js';
 import { arknights } from './providers/arknights.js';
 import { bluearchive } from './providers/bluearchive.js';
+import { gfl2 } from './providers/gfl2.js';
 
 // ===== PROVIDER REGISTRY =====
 // To add a new source, import it above and register it here.
@@ -15,7 +16,8 @@ const PROVIDERS = {
   sinoalice,
   wutheringwaves,
   arknights,
-  bluearchive
+  bluearchive,
+  gfl2
 };
 
 // ===== MESSAGE ROUTER =====
@@ -45,7 +47,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.imageUrl && (
           request.imageUrl.includes('wutheringwaves.kurogames.com') ||
           request.imageUrl.includes('raw.githubusercontent.com') ||
-          (request.imageUrl.includes('github.com') && request.imageUrl.includes('?raw=true'))
+          (request.imageUrl.includes('github.com') && request.imageUrl.includes('?raw=true')) ||
+          request.imageUrl.includes('gf2.mcc.wiki')
         )) {
           return { success: true, dataUrl: request.imageUrl, direct: true };
         }

@@ -30,6 +30,12 @@ const PROVIDER_CONFIG = {
     instructions: '<strong>How to use:</strong> Enter a wiki URL.<br>From lists : <kbd style="user-select:all;display:block;color:orange;">https://bluearchive.wikiru.jp/?%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E4%B8%80%E8%A6%A7</kbd> <br><hr><br>Example : <kbd style="user-select:all;display:block;color:orange;">https://bluearchive.wikiru.jp/?%E3%82%AB%E3%83%AA%E3%83%B3</kbd>',
     placeholder: 'Enter character name or paste wiki URL',
     hasCharacterList: false
+  },
+  gfl2: {
+    name: 'Girls\' Frontline 2',
+    instructions: '<strong>How to use:</strong> Select a doll from the sidebar or type a name.<br>Examples: <code>Vepley</code>, <code>Nemesis</code>, <code>Centaureissi</code>',
+    placeholder: 'Enter doll name or select from list',
+    hasCharacterList: true
   }
 };
 
