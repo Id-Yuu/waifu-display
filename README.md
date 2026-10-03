@@ -63,6 +63,7 @@ waifu-display/
     ├── sinoalice.js           # Wiki scraper provider
     ├── wutheringwaves.js      # Static list provider
     ├── gfl2.js                # Static list provider
+    ├── bluearchive.js         # Wiki scraper provider
     ├── pgr.js                 # Static list provider
     └── arknights.js           # API-fetched provider with cache fallback
 ```
