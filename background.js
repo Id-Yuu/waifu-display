@@ -9,6 +9,7 @@ import { wutheringwaves } from './providers/wutheringwaves.js';
 import { arknights } from './providers/arknights.js';
 import { bluearchive } from './providers/bluearchive.js';
 import { gfl2 } from './providers/gfl2.js';
+import { pgr } from './providers/pgr.js';
 
 // ===== PROVIDER REGISTRY =====
 // To add a new source, import it above and register it here.
@@ -17,7 +18,8 @@ const PROVIDERS = {
   wutheringwaves,
   arknights,
   bluearchive,
-  gfl2
+  gfl2,
+  pgr
 };
 
 // ===== MESSAGE ROUTER =====
@@ -48,7 +50,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           request.imageUrl.includes('wutheringwaves.kurogames.com') ||
           request.imageUrl.includes('raw.githubusercontent.com') ||
           (request.imageUrl.includes('github.com') && request.imageUrl.includes('?raw=true')) ||
-          request.imageUrl.includes('gf2.mcc.wiki')
+          request.imageUrl.includes('gf2.mcc.wiki') ||
+          request.imageUrl.includes('assets.huaxu.app')
         )) {
           return { success: true, dataUrl: request.imageUrl, direct: true };
         }

@@ -5,6 +5,34 @@
 const $ = sel => document.querySelector(sel);
 const $$ = sel => document.querySelectorAll(sel);
 
+// ===== AVATAR CACHE (localStorage) =====
+// Once an avatar image loads successfully, keep it as a base64 data URL
+// in localStorage so the sidebar doesn't re-request the same image URL
+// every time the popup opens.
+const AVATAR_CACHE_PREFIX = 'avatarCache:';
+
+function getCachedAvatar(url) {
+  try {
+    return localStorage.getItem(AVATAR_CACHE_PREFIX + url);
+  } catch {
+    return null;
+  }
+}
+
+function cacheAvatar(url, imgEl) {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = imgEl.naturalWidth || 32;
+    canvas.height = imgEl.naturalHeight || 32;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgEl, 0, 0);
+    const dataUrl = canvas.toDataURL('image/png');
+    localStorage.setItem(AVATAR_CACHE_PREFIX + url, dataUrl);
+  } catch {
+    // Cross-origin canvas taint or storage quota — just skip caching silently
+  }
+}
+
 // Provider metadata for UI
 const PROVIDER_CONFIG = {
   sinoalice: {
@@ -35,6 +63,12 @@ const PROVIDER_CONFIG = {
     name: 'Girls\' Frontline 2',
     instructions: '<strong>How to use:</strong> Select a doll from the sidebar or type a name.<br>Examples: <code>Vepley</code>, <code>Nemesis</code>, <code>Centaureissi</code>',
     placeholder: 'Enter doll name or select from list',
+    hasCharacterList: true
+  },
+  pgr: {
+    name: 'Punishing: Gray Raven',
+    instructions: '<strong>How to use:</strong> Select a construct from the sidebar or type a name.<br>Examples: <code>lotus</code>, <code>eclipse</code>, <code>bastion</code>',
+    placeholder: 'Enter construct name or select from list',
     hasCharacterList: true
   }
 };
@@ -207,12 +241,20 @@ class PopupController {
       // Avatar
       const avatar = document.createElement('img');
       avatar.className = 'avatar';
-      avatar.src = char.imageUrl;
       avatar.alt = char.displayName;
       avatar.loading = 'lazy';
-      avatar.onerror = () => {
-        avatar.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23737373" stroke-width="1"%3E%3Crect x="3" y="3" width="18" height="18" rx="2"/%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"/%3E%3Cpath d="M21 15l-5-5L5 21"/%3E%3C/svg%3E';
-      };
+
+      const cached = getCachedAvatar(char.imageUrl);
+      if (cached) {
+        // Already cached — load straight from localStorage, no network request
+        avatar.src = cached;
+      } else {
+        avatar.src = char.imageUrl;
+        avatar.onerror = () => {
+          avatar.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="%23737373" stroke-width="1"%3E%3Crect x="3" y="3" width="18" height="18" rx="2"/%3E%3Ccircle cx="8.5" cy="8.5" r="1.5"/%3E%3Cpath d="M21 15l-5-5L5 21"/%3E%3C/svg%3E';
+        };
+        avatar.onload = () => cacheAvatar(char.imageUrl, avatar);
+      }
       item.appendChild(avatar);
 
       // Info

@@ -10,7 +10,8 @@
     "https://raw.githubusercontent.com/*",
     "https://api.github.com/*",
     "https://bluearchive.wikiru.jp/*",
-    "https://gf2.mcc.wiki/*"
+    "https://gf2.mcc.wiki/*",
+    "https://assets.huaxu.app/*"
   ],
   "action": {
     "default_popup": "popup.html",
