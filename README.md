@@ -34,8 +34,8 @@ Display your favorite game characters on any webpage. A lightweight Chrome exten
 | **Wuthering Waves** | Static list | ✅ | Pre-loaded roster from kurogames.com |
 | **Arknights** | GitHub repo | ✅ | Fetched live from [PuppiizSunniiz/Arknight-Images](https://github.com/PuppiizSunniiz/Arknight-Images) |
 | **Blue Archive** | Wiki scraper | ❌ | Copy url character from [BlueArchiveWIKIRU](https://bluearchive.wikiru.jp/?%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E4%B8%80%E8%A6%A7) | 
-| **Girls' Frontline** | ⚠️ | ❌ | Upcoming |
 | **Girls' Frontline 2** | Static list | ✅ | Pre-loaded roster from [gf2.mcc.wiki](https://gf2.mcc.wiki/doll) |
+| **Punishing: Gray Raven** | Static list | ✅ | Pre-loaded roster from [assets.huaxu.app](https://assets.huaxu.app/browse) |
 
 ---
 
@@ -62,6 +62,8 @@ waifu-display/
 └── providers/
     ├── sinoalice.js           # Wiki scraper provider
     ├── wutheringwaves.js      # Static list provider
+    ├── gfl2.js                # Static list provider
+    ├── pgr.js                 # Static list provider
     └── arknights.js           # API-fetched provider with cache fallback
 ```
 
